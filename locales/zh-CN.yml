@@ -1,6 +1,3 @@
 _version: 1
-app-title: "Stasis 设置"
-url-label: "网址: "
-browse-button: "选择本地文件..."
-save-button: "保存并关闭"
-browse-dialog-title: "选择一个 HTML 文件"
+config-title: "Stasis 设置"
+choose-dialog-title: "选择一个 HTML 文件"

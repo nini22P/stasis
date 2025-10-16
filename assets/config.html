@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stasis Settings</title>
+  <style>
+    :root {
+      --bg-color: #f0f0f0;
+      --text-color: #333;
+      --primary-color: #0078d4;
+      --primary-hover-color: #005a9e;
+      --border-color: #ccc;
+      --input-bg: #fff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 40px);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--input-bg);
+    }
+
+    button {
+      padding: 8px 15px;
+      border: 1px solid var(--primary-color);
+      border-radius: 4px;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover-color);
+    }
+
+    .secondary {
+      background-color: #fff;
+      color: #333;
+      border: 1px solid var(--border-color);
+    }
+
+    .secondary:hover {
+      background-color: #e6e6e6;
+    }
+
+    .footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="form-group">
+      <label for="uri-input">URI:</label>
+      <input type="text" id="uri-input" placeholder="Enter URL or choose local file...">
+    </div>
+
+    <div class="button-group">
+      <button id="choose-btn" class="secondary">Choose local file...</button>
+    </div>
+
+    <div class="footer">
+      <button id="cancel-btn" class="secondary">Cancel</button>
+      <button id="save-btn">Save and close</button>
+    </div>
+  </div>
+
+  <script>
+    const uriInput = document.getElementById('uri-input');
+    const chooseBtn = document.getElementById('choose-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const saveBtn = document.getElementById('save-btn');
+
+    window.applyI18n = function (t) {
+      uriInput.placeholder = t.uriPlaceholder;
+      chooseBtn.innerText = t.choose;
+      saveBtn.innerText = t.save;
+      cancelBtn.innerText = t.cancel;
+    }
+
+    window.loadConfig = function (url) {
+      if (url) {
+        uriInput.value = url;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', ready);
+
+    chooseBtn.addEventListener('click', async () => {
+      const filePath = await choose();
+      if (filePath) {
+        uriInput.value = filePath;
+      }
+    });
+
+    cancelBtn.addEventListener('click', close);
+
+    saveBtn.addEventListener('click', async () => {
+      const result = await save(uriInput.value);
+      console.log('Save result from Rust:', result);
+    });
+  </script>
+</body>
+
+</html>

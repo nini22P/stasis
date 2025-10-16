@@ -7,7 +7,7 @@ const handleClose = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  loaded();
+  ready();
   setTimeout(() => {
     isLoaded = true;
   }, 500);

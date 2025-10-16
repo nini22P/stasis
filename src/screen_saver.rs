@@ -43,16 +43,13 @@ pub fn run(parent_hwnd: Option<isize>) {
         _ => false,
     });
 
-    let app_clone = app.clone();
-    let mut win_clone = win.clone();
-
-    wv.bind("loaded", move |_, _| {
-        win_clone.set_opacity(1.0);
+    wv.bind("ready", |_, _| {
+        win.set_opacity(1.0);
     });
 
-    wv.bind("close", move |_, _| {
+    wv.bind("close", |_, _| {
         if parent_hwnd.is_none() {
-            app_clone.quit();
+            app.quit();
         }
     });
 

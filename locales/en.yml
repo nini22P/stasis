@@ -1,6 +1,3 @@
 _version: 1
-app-title: "Stasis Settings"
-url-label: "URL: "
-browse-button: "Choose local file..."
-save-button: "Save and close"
-browse-dialog-title: "Choose an HTML file"
+config-title: "Stasis Settings"
+choose-dialog-title: "Choose an HTML file"

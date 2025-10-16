@@ -13,8 +13,10 @@ set "DEST_FILE=target\release\stasis.scr"
 
 echo [INFO] Renaming %SOURCE_FILE% to stasis.scr...
 
+del "%DEST_FILE%"
+
 rename "%SOURCE_FILE%" "stasis.scr"
 
-echo [SUCCESS] Screen saver created at: %DEST_FILE%
+echo [SUCCESS] Created at: %DEST_FILE%
 
 pause
