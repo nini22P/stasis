@@ -3,11 +3,10 @@ use fltk::{app, dialog, window::Window};
 use fltk_webview::{FromFltkWindow, Webview};
 use rust_i18n::t;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::assets::Assets;
+use crate::assets::{Assets, Locales};
 
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -61,15 +60,15 @@ pub fn run(is_modal: bool) {
     let wv = Webview::create(false, &mut win);
 
     wv.bind("ready", |_, _| {
-        let translations = json!({
-            "uriPlaceholder": t!("web.uri-placeholder"),
-            "choose": t!("web.choose"),
-            "cancel": t!("web.cancel"),
-            "save": t!("web.save"),
-        });
+        let locale = rust_i18n::locale();
+        let file_name = format!("{}.json", &*locale);
 
-        if let Ok(json_string) = serde_json::to_string(&translations) {
-            wv.eval(&format!("window.applyI18n({})", json_string));
+        let content = Locales::get(&file_name).or_else(|| Locales::get("en.json"));
+
+        if let Some(file_content) = content {
+            if let Ok(json_string) = std::str::from_utf8(&file_content.data) {
+                wv.eval(&format!("window.applyI18n({})", json_string));
+            }
         }
 
         if let Some(url) = load_url() {
@@ -112,7 +111,7 @@ pub fn run(is_modal: bool) {
         app.quit();
     });
 
-    if let Some(content) = Assets::get("/config.html") {
+    if let Some(content) = Assets::get("config.html") {
         if let Ok(html_str) = std::str::from_utf8(&content.data) {
             let encoded_html = urlencoding::encode(html_str);
             let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);

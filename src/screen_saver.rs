@@ -53,7 +53,7 @@ pub fn run(parent_hwnd: Option<isize>) {
         }
     });
 
-    if let Some(content) = Assets::get("/init.js") {
+    if let Some(content) = Assets::get("init.js") {
         wv.init(&String::from_utf8_lossy(&content.data));
     }
 
@@ -64,7 +64,7 @@ pub fn run(parent_hwnd: Option<isize>) {
             wv.navigate(&url);
         }
         None => {
-            if let Some(content) = Assets::get("/index.html") {
+            if let Some(content) = Assets::get("index.html") {
                 if let Ok(html_str) = std::str::from_utf8(&content.data) {
                     let encoded_html = urlencoding::encode(html_str);
                     let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);
