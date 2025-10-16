@@ -1,3 +1,11 @@
-# Stasis
+# Stasis - A WebView ScreenSaver for Windows
 
-A WebView ScreenSaver for Windows | Windows 网页屏幕保护程序
+English | [简体中文](README_CN.md)
+
+## Build
+
+Double click `build.bat` or run in PowerShell.
+
+```bash
+./build.bat
+```
