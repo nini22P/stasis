@@ -15,6 +15,7 @@ const handleClose = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.ready()
+  document.documentElement.style.cursor = 'none'
   setTimeout(() => {
     isLoaded = true
   }, 500)
