@@ -57,14 +57,31 @@ pub fn run(parent_hwnd: Option<isize>) {
         wv.init(&String::from_utf8_lossy(&content.data));
     }
 
-    let url_to_load = config::load_url();
+    let stored_config = config::load_config();
+    let uri_to_load = if stored_config.selected_uri.is_empty() {
+        None
+    } else {
+        Some(stored_config.selected_uri)
+    };
 
-    match url_to_load {
-        Some(url) => {
-            wv.navigate(&url);
+    match uri_to_load {
+        Some(uri) => {
+            if uri.starts_with("screensavers/") {
+                if let Some(content) = Assets::get(&uri) {
+                    if let Ok(html_str) = std::str::from_utf8(&content.data) {
+                        let encoded_html = urlencoding::encode(html_str);
+                        let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);
+                        wv.navigate(&data_uri);
+                    } else {
+                        eprintln!("Fatal: Bundled screensaver not valid UTF-8!");
+                    }
+                }
+            } else {
+                wv.navigate(&uri);
+            }
         }
         None => {
-            if let Some(content) = Assets::get("index.html") {
+            if let Some(content) = Assets::get("screensavers/default/index.html") {
                 if let Ok(html_str) = std::str::from_utf8(&content.data) {
                     let encoded_html = urlencoding::encode(html_str);
                     let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);

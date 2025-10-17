@@ -1,16 +1,29 @@
 use fltk::prelude::*;
 use fltk::{app, dialog, window::Window};
 use fltk_webview::{FromFltkWindow, Webview};
-use rust_i18n::t;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-use crate::assets::{Assets, Locales};
+use crate::assets::Assets;
 
-#[derive(Serialize, Deserialize)]
-struct Config {
-    url: String,
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct Source {
+    uri: String,
+    name: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct Config {
+    builtin_sources: Vec<Source>,
+    custom_sources: Vec<Source>,
+    selected_uri: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct StoredConfig {
+    pub custom_sources: Vec<Source>,
+    pub selected_uri: String,
 }
 
 fn get_config_path() -> Option<PathBuf> {
@@ -22,33 +35,30 @@ fn get_config_path() -> Option<PathBuf> {
     })
 }
 
-pub fn save_url(url: &str) -> Result<(), std::io::Error> {
+pub fn load_config() -> StoredConfig {
     if let Some(path) = get_config_path() {
-        let config = Config {
-            url: url.to_string(),
-        };
-        let json = serde_json::to_string_pretty(&config)?;
+        if let Ok(data) = fs::read_to_string(path) {
+            return serde_json::from_str(&data).unwrap_or_default();
+        }
+    }
+    StoredConfig::default()
+}
+
+fn save_config(config: &StoredConfig) -> Result<(), Box<dyn std::error::Error>> {
+    if let Some(path) = get_config_path() {
+        let json = serde_json::to_string_pretty(config)?;
+        println!("Saving config: {}", json);
         fs::write(path, json)?;
     }
     Ok(())
 }
 
-pub fn load_url() -> Option<String> {
-    if let Some(path) = get_config_path() {
-        if let Ok(data) = fs::read_to_string(path) {
-            let config: Result<Config, _> = serde_json::from_str(&data);
-            return config.ok().map(|c| c.url).filter(|url| !url.is_empty());
-        }
-    }
-    None
-}
-
 pub fn run(is_modal: bool) {
     let app = app::App::default();
     let mut win = Window::default()
-        .with_size(420, 220)
+        .with_size(640, 480)
         .center_screen()
-        .with_label(&t!("config-title"));
+        .with_label(&"Stasis Configuration");
 
     if is_modal {
         win.make_modal(true);
@@ -57,30 +67,42 @@ pub fn run(is_modal: bool) {
     win.end();
     win.show();
 
-    let wv = Webview::create(false, &mut win);
+    let wv = Webview::create(true, &mut win);
 
     wv.bind("ready", |_, _| {
-        let locale = rust_i18n::locale();
-        let file_name = format!("{}.json", &*locale);
+        let builtin_sources: Vec<Source> = Assets::iter()
+            .filter(|path| path.starts_with("screensavers/"))
+            .filter_map(|path| path.split('/').nth(1).map(String::from))
+            .collect::<std::collections::HashSet<String>>()
+            .into_iter()
+            .map(|name| Source {
+                uri: format!("screensavers/{}/index.html", name),
+                name,
+            })
+            .collect();
 
-        let content = Locales::get(&file_name).or_else(|| Locales::get("en.json"));
+        let stored_config = load_config();
 
-        if let Some(file_content) = content {
-            if let Ok(json_string) = std::str::from_utf8(&file_content.data) {
-                wv.eval(&format!("window.applyI18n({})", json_string));
-            }
-        }
+        let config = Config {
+            builtin_sources,
+            custom_sources: stored_config.custom_sources,
+            selected_uri: stored_config.selected_uri,
+        };
 
-        if let Some(url) = load_url() {
-            let safe_url = url
-                .replace('\\', "\\\\")
-                .replace('\'', "\\'")
-                .replace('"', "\\\"");
-            wv.eval(&format!("window.loadConfig('{}')", safe_url));
+        if let Ok(config_json) = serde_json::to_string(&config) {
+            wv.eval(&format!("window.loadConfig({})", config_json));
         }
     });
 
-    wv.bind("choose", |seq, _content| {
+    wv.bind("setTitle", |_, content| {
+        if let Ok(values) = serde_json::from_str::<Vec<String>>(content) {
+            if let Some(title) = values.get(0) {
+                win.set_label(&title);
+            }
+        }
+    });
+
+    wv.bind("choose", |seq, _| {
         let mut dialog = dialog::FileDialog::new(dialog::FileDialogType::BrowseFile);
         dialog.set_filter("*.{htm,html}");
         dialog.show();
@@ -90,28 +112,28 @@ pub fn run(is_modal: bool) {
         wv.return_(seq, 0, &result);
     });
 
+    wv.bind("close", |_, _| {
+        app.quit();
+    });
+
     wv.bind("save", |seq, content| {
-        let mut status = "fail";
-        if let Ok(parsed) = serde_json::from_str::<Vec<String>>(content) {
-            if let Some(url_to_save) = parsed.get(0) {
-                if let Err(e) = save_url(url_to_save) {
-                    eprintln!("Error saving config: {}", e);
-                } else {
-                    status = "success";
+        let mut status = "failed";
+
+        if let Ok(values) = serde_json::from_str::<Vec<String>>(content) {
+            if let Some(config_str) = values.get(0) {
+                if let Ok(stored_config) = serde_json::from_str::<StoredConfig>(config_str) {
+                    println!("Parsed StoredConfig: {:?}", stored_config);
+                    if save_config(&stored_config).is_ok() {
+                        status = "success";
+                    }
                 }
             }
         }
 
         wv.return_(seq, 0, &format!("\"{}\"", status));
-
-        app.quit();
     });
 
-    wv.bind("close", |_seq, _content| {
-        app.quit();
-    });
-
-    if let Some(content) = Assets::get("config.html") {
+    if let Some(content) = Assets::get("config/index.html") {
         if let Ok(html_str) = std::str::from_utf8(&content.data) {
             let encoded_html = urlencoding::encode(html_str);
             let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);

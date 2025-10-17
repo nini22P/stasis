@@ -1,4 +1,17 @@
 @echo off
+
+cd frontend
+
+echo [INFO] Installing dependencies...
+
+call npm install
+
+echo [INFO] Building frontend...
+
+call npm run build
+
+cd ..
+
 echo [INFO] Compiling the project in release mode...
 
 cargo build --release
@@ -13,7 +26,9 @@ set "DEST_FILE=target\release\stasis.scr"
 
 echo [INFO] Renaming %SOURCE_FILE% to stasis.scr...
 
-del "%DEST_FILE%"
+if exist "%DEST_FILE%" (
+    del "%DEST_FILE%"
+)
 
 rename "%SOURCE_FILE%" "stasis.scr"
 

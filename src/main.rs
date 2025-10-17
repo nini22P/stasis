@@ -7,8 +7,6 @@ mod screen_saver;
 #[cfg(windows)]
 mod winapi_utils;
 
-rust_i18n::i18n!("locales");
-
 enum Mode {
     Config(bool),
     Preview(isize),
@@ -16,9 +14,6 @@ enum Mode {
 }
 
 fn main() {
-    let locale = sys_locale::get_locale().unwrap_or_else(|| "en".to_string());
-    rust_i18n::set_locale(&locale);
-
     let args: Vec<String> = std::env::args().collect();
     let mut mode = Mode::Config(false);
 
