@@ -34,7 +34,7 @@ pub fn run(parent_hwnd: Option<isize>) {
     let wv = Webview::create(false, &mut win);
 
     win.handle(move |_, ev| match ev {
-        Event::KeyDown | Event::Move | Event::Push => {
+        Event::KeyDown => {
             if parent_hwnd.is_none() {
                 app.quit();
             }
