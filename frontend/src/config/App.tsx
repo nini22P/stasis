@@ -117,7 +117,7 @@ export function App() {
   }
 
   const handleClose = () => {
-    window.close()
+    window.quit()
   }
 
   const handleSave = async () => {
@@ -131,7 +131,7 @@ export function App() {
     const result = await window.save(JSON.stringify(configToSave))
 
     if (result === 'success') {
-      window.close()
+      window.quit()
     }
   }
 

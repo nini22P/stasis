@@ -20,7 +20,7 @@ declare global {
     loadConfig: (config: Config) => void
     ready: () => void
     choose: () => Promise<string>
-    close: () => void
+    quit: () => void
     save: (configJson: string) => Promise<'success' | 'failed'>
   }
 }

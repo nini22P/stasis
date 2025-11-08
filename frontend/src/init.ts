@@ -1,7 +1,7 @@
 declare global {
   interface Window {
     ready: () => void
-    close: () => void
+    quit: () => void
   }
 }
 
@@ -13,7 +13,7 @@ let startY: number | null = null
 
 const handleClose = () => {
   if (isLoaded) {
-    window.close()
+    window.quit()
   }
 }
 

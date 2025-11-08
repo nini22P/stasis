@@ -1,60 +1,49 @@
-use fltk::{app::App, enums::Event, prelude::*, window::Window};
-use fltk_webview::{FromFltkWindow, Webview};
+use windows_sys::Win32::Foundation::HWND;
+use wv::{SizeHint, Webview};
 
-use crate::{assets::Assets, config};
-
-#[cfg(windows)]
-use crate::winapi_utils;
+use crate::{
+    assets::Assets,
+    config,
+    utils::{get_screen_size, set_as_child, set_fullscreen, set_window_alpha, set_window_size},
+};
 
 pub fn run(parent_hwnd: Option<isize>) {
-    let app = App::default();
-    let mut win = Window::default()
-        .with_size(800, 600)
-        .center_screen()
-        .with_label("Stasis");
+    let mut wv = Webview::create_no_win(true);
 
-    win.set_color(fltk::enums::Color::Black);
-    win.make_resizable(true);
+    let hwnd = wv.get_window();
+
+    set_window_alpha(hwnd, 0);
+
+    let (screen_width, screen_height) = get_screen_size();
+
+    set_window_size(hwnd, screen_width, screen_height, true, true);
+
+    wv.set_size(screen_width, screen_height, SizeHint::None)
+        .unwrap();
+    wv.set_title("Stasis").unwrap();
 
     if parent_hwnd.is_none() {
-        win.fullscreen(true);
+        set_fullscreen(hwnd);
     }
 
-    win.end();
-    win.show();
-
-    #[cfg(windows)]
-    if let Some(hwnd) = parent_hwnd {
-        let win_handle_ptr = win.raw_handle();
-        winapi_utils::set_as_child(win_handle_ptr, hwnd);
+    if let Some(parent_hwnd) = parent_hwnd {
+        set_as_child(hwnd, parent_hwnd as HWND);
     }
-
-    win.set_opacity(0.0);
-
-    let wv = Webview::create(false, &mut win);
-
-    win.handle(move |_, ev| match ev {
-        Event::KeyDown => {
-            if parent_hwnd.is_none() {
-                app.quit();
-            }
-            true
-        }
-        _ => false,
-    });
 
     wv.bind("ready", |_, _| {
-        win.set_opacity(1.0);
-    });
+        set_window_alpha(hwnd, 255);
+    })
+    .unwrap();
 
-    wv.bind("close", |_, _| {
+    wv.bind("quit", |_, _| {
         if parent_hwnd.is_none() {
-            app.quit();
+            std::process::exit(0);
         }
-    });
+    })
+    .unwrap();
 
     if let Some(content) = Assets::get("init.js") {
-        wv.init(&String::from_utf8_lossy(&content.data));
+        wv.init(&String::from_utf8_lossy(&content.data)).unwrap();
     }
 
     let stored_config = config::load_config();
@@ -71,13 +60,13 @@ pub fn run(parent_hwnd: Option<isize>) {
                     if let Ok(html_str) = std::str::from_utf8(&content.data) {
                         let encoded_html = urlencoding::encode(html_str);
                         let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);
-                        wv.navigate(&data_uri);
+                        wv.navigate(&data_uri).unwrap();
                     } else {
                         eprintln!("Fatal: Bundled screensaver not valid UTF-8!");
                     }
                 }
             } else {
-                wv.navigate(&uri);
+                wv.navigate(&uri).unwrap();
             }
         }
         None => {
@@ -85,7 +74,7 @@ pub fn run(parent_hwnd: Option<isize>) {
                 if let Ok(html_str) = std::str::from_utf8(&content.data) {
                     let encoded_html = urlencoding::encode(html_str);
                     let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);
-                    wv.navigate(&data_uri);
+                    wv.navigate(&data_uri).unwrap();
                 }
             } else {
                 eprintln!("Fatal: Bundled 'default.html' not found!");
@@ -93,5 +82,5 @@ pub fn run(parent_hwnd: Option<isize>) {
         }
     }
 
-    app.run().unwrap();
+    wv.run().unwrap();
 }

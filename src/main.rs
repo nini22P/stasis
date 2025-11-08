@@ -5,7 +5,7 @@ mod config;
 mod screen_saver;
 
 #[cfg(windows)]
-mod winapi_utils;
+mod utils;
 
 enum Mode {
     Config(bool),

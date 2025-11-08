@@ -121,57 +121,26 @@ checksum = "52051878f80a721bb68ebfbc930e07b65ba72f2da88968ea5c06fd6ca3d3a127"
 
 [[package]]
 name = "fltk"
-version = "1.5.17"
+version = "1.5.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bbd413a9508f72cdd5d017ad9ee02a2f82e24354a0e46d82db0cfad2eaa9d13"
+checksum = "235b367bced84cec76f564d6d43b84fbba636af86bf906fdc2a33c651764a814"
 dependencies = [
  "bitflags",
  "crossbeam-channel",
  "fltk-sys",
+ "minipaste",
  "once_cell",
- "paste",
  "ttf-parser",
 ]
 
 [[package]]
 name = "fltk-sys"
-version = "1.5.15"
+version = "1.5.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b630a800757b2be016ccdd9e8d80f9c30c97422e21230b18d78b5befecd48fd"
+checksum = "7df4b0c9a662ea52f7f59607d99d803f6bd222e79ff6d1344bf45bea62e6c58f"
 dependencies = [
  "cmake",
  "cmk",
-]
-
-[[package]]
-name = "fltk-theme"
-version = "0.7.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8eac14d47a555db231b4ce9729118a7c57c8a21714af008b8e9ae627998edb7a"
-dependencies = [
- "fltk",
-]
-
-[[package]]
-name = "fltk-webview"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d1f42a44b2fff4e53349ea035c7a0ccc1777360097bb14d23ee6507fe9bde23"
-dependencies = [
- "fltk",
- "fltk-webview-sys",
-]
-
-[[package]]
-name = "fltk-webview-sys"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c42e995f4307c59f916c0f8ebee55c8b3caed97265aa85dcc830fddb85b6adb"
-dependencies = [
- "cc",
- "pkg-config",
- "wv",
- "wv-sys",
 ]
 
 [[package]]
@@ -224,6 +193,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
+name = "minipaste"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bbcafc6544efab7decec8e8e63d6e7cbaac0a699a4adead308a80f9c302d6ae"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -234,12 +212,6 @@ name = "option-ext"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
-
-[[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pkg-config"
@@ -266,12 +238,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "raw-window-handle"
-version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
-
-[[package]]
 name = "redox_users"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -284,9 +250,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed"
-version = "8.7.2"
+version = "8.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "025908b8682a26ba8d12f6f2d66b987584a4a87bc024abc5bbc12553a8cd178a"
+checksum = "947d7f3fad52b283d261c4c99a084937e2fe492248cb9a68a8435a861b8798ca"
 dependencies = [
  "rust-embed-impl",
  "rust-embed-utils",
@@ -295,9 +261,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-impl"
-version = "8.7.2"
+version = "8.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6065f1a4392b71819ec1ea1df1120673418bf386f50de1d6f54204d836d4349c"
+checksum = "5fa2c8c9e8711e10f9c4fd2d64317ef13feaab820a4c51541f1a8c8e2e851ab2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -308,9 +274,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-utils"
-version = "8.7.2"
+version = "8.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6cc0c81648b20b70c491ff8cce00c1c3b223bb8ed2b5d41f0e54c6c4c0a3594"
+checksum = "60b161f275cb337fe0a44d924a5f4df0ed69c2c39519858f931ce61c779d3475"
 dependencies = [
  "sha2",
  "walkdir",
@@ -397,14 +363,12 @@ version = "0.1.1"
 dependencies = [
  "dirs",
  "fltk",
- "fltk-theme",
- "fltk-webview",
- "raw-window-handle",
  "rust-embed",
  "serde",
  "serde_json",
  "urlencoding",
  "windows-sys",
+ "wv",
 ]
 
 [[package]]
@@ -510,19 +474,19 @@ dependencies = [
 
 [[package]]
 name = "wv"
-version = "0.1.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9c803347afd5b74002cea7a340e53c96ea7176e960ab6aba2824991b0956e41"
+checksum = "22b7d75a8d7137942e6919c2679fbca36a7419574a65e92dd6cf79b1ae307227"
 dependencies = [
  "wv-sys",
 ]
 
 [[package]]
 name = "wv-sys"
-version = "0.1.3"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ccd932a007eb2be4bb3c6d366c4d02e2215583df7463b6a4c0ea19b6723a7d4"
+checksum = "a2c34e453bb2a98396ab09a82f35da5f8e3ca5716d2ff2fa385e15b90ffe86de"
 dependencies = [
- "cc",
+ "cmake",
  "pkg-config",
 ]

@@ -1,11 +1,11 @@
-use fltk::prelude::*;
-use fltk::{app, dialog, window::Window};
-use fltk_webview::{FromFltkWindow, Webview};
+use fltk::dialog;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use wv::{SizeHint, Webview};
 
 use crate::assets::Assets;
+use crate::utils::set_window_size;
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct Source {
@@ -53,21 +53,17 @@ fn save_config(config: &StoredConfig) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-pub fn run(is_modal: bool) {
-    let app = app::App::default();
-    let mut win = Window::default()
-        .with_size(640, 480)
-        .center_screen()
-        .with_label(&"Stasis Configuration");
+pub fn run(_is_modal: bool) {
+    let mut wv = Webview::create_no_win(true);
 
-    if is_modal {
-        win.make_modal(true);
-    }
+    let hwnd = wv.get_window();
 
-    win.end();
-    win.show();
+    set_window_size(hwnd, 640, 480, true, false);
 
-    let wv = Webview::create(true, &mut win);
+    wv.set_size(640, 480, SizeHint::None).unwrap();
+    wv.set_title(&"Stasis Configuration").unwrap();
+
+    let wv_clone = wv.clone();
 
     wv.bind("ready", |_, _| {
         let builtin_sources: Vec<Source> = Assets::iter()
@@ -90,17 +86,25 @@ pub fn run(is_modal: bool) {
         };
 
         if let Ok(config_json) = serde_json::to_string(&config) {
-            wv.eval(&format!("window.loadConfig({})", config_json));
+            wv_clone
+                .eval(&format!("window.loadConfig({})", config_json))
+                .unwrap();
         }
-    });
+    })
+    .unwrap();
+
+    let mut wv_clone = wv.clone();
 
     wv.bind("setTitle", |_, content| {
         if let Ok(values) = serde_json::from_str::<Vec<String>>(content) {
             if let Some(title) = values.get(0) {
-                win.set_label(&title);
+                wv_clone.set_title(&title).unwrap();
             }
         }
-    });
+    })
+    .unwrap();
+
+    let wv_clone = wv.clone();
 
     wv.bind("choose", |seq, _| {
         let mut dialog = dialog::FileDialog::new(dialog::FileDialogType::BrowseFile);
@@ -109,12 +113,14 @@ pub fn run(is_modal: bool) {
         let filename = dialog.filename().to_string_lossy().to_string();
 
         let result = format!("\"{}\"", filename.replace('\\', "\\\\"));
-        wv.return_(seq, 0, &result);
-    });
+        wv_clone.return_(seq, 0, &result).unwrap();
+    })
+    .unwrap();
 
-    wv.bind("close", |_, _| {
-        app.quit();
-    });
+    wv.bind("quit", |_, _| {
+        std::process::exit(0);
+    })
+    .unwrap();
 
     wv.bind("save", |seq, content| {
         let mut status = "failed";
@@ -130,18 +136,19 @@ pub fn run(is_modal: bool) {
             }
         }
 
-        wv.return_(seq, 0, &format!("\"{}\"", status));
-    });
+        wv.return_(seq, 0, &format!("\"{}\"", status)).unwrap();
+    })
+    .unwrap();
 
     if let Some(content) = Assets::get("config/index.html") {
         if let Ok(html_str) = std::str::from_utf8(&content.data) {
             let encoded_html = urlencoding::encode(html_str);
             let data_uri = format!("data:text/html;charset=utf-8,{}", encoded_html);
-            wv.navigate(&data_uri);
+            wv.navigate(&data_uri).unwrap();
         }
     } else {
         eprintln!("Fatal: Bundled 'config.html' not found!");
     }
 
-    app.run().unwrap();
+    wv.run().unwrap();
 }
