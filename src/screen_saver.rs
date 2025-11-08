@@ -8,6 +8,10 @@ use crate::{
 };
 
 pub fn run(parent_hwnd: Option<isize>) {
+    unsafe extern "C" {
+        pub fn move_focus(wv: *mut wv::webview_t);
+    }
+
     let mut wv = Webview::create_no_win(true);
 
     let hwnd = wv.get_window();
@@ -32,6 +36,7 @@ pub fn run(parent_hwnd: Option<isize>) {
 
     wv.bind("ready", |_, _| {
         set_window_alpha(hwnd, 255);
+        unsafe { move_focus(*wv.inner as *mut _) };
     })
     .unwrap();
 

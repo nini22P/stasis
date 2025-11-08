@@ -19,9 +19,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.41"
+version = "1.2.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac9fe6cdbb24b6ade63616c0a0688e45bb56732262c158df3c0c4bea4ca47cb7"
+checksum = "35900b6c8d709fb1d854671ae27aeaa9eec2f8b01b364e1619a40da3e6fe2afe"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -361,6 +361,7 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 name = "stasis"
 version = "0.1.1"
 dependencies = [
+ "cc",
  "dirs",
  "fltk",
  "rust-embed",
@@ -475,8 +476,7 @@ dependencies = [
 [[package]]
 name = "wv"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22b7d75a8d7137942e6919c2679fbca36a7419574a65e92dd6cf79b1ae307227"
+source = "git+https://github.com/nini22P/wv#d14bcbf0fdf517aecffcfcf4a2a521b36a9a4007"
 dependencies = [
  "wv-sys",
 ]
@@ -484,8 +484,7 @@ dependencies = [
 [[package]]
 name = "wv-sys"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2c34e453bb2a98396ab09a82f35da5f8e3ca5716d2ff2fa385e15b90ffe86de"
+source = "git+https://github.com/nini22P/wv#d14bcbf0fdf517aecffcfcf4a2a521b36a9a4007"
 dependencies = [
  "cmake",
  "pkg-config",
